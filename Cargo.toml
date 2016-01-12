@@ -1,0 +1,8 @@
+[package]
+name = "mdcollate"
+version = "0.0.1"
+authors = ["Peter Lesty <peter@parashift.com.au"]
+description = "Collates multiple markdown files into one, resolving internal links"
+
+[dependencies]
+regex = "0.1"
