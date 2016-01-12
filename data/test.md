@@ -1,6 +1,10 @@
+![image](./logo.png)
+
 ## Test linking
 
-![image](./logo.png)
+[external link](https://www.parashift.com.au)
+
+[broken link](broken.md)
 
 Lorem ipsum dolor sit amet, posse legere dolorem sit ex, dicta civibus ex vel, in sed altera vivendum comprehensam. Oratio ceteros sea ex. Et mea prompta consulatu, cu eum munere fabulas. Equidem alienum noluisse eu sea. Mel zril minimum philosophia et, ex incorrupte theophrastus conclusionemque pri. Per dico graeco definiebas ut, hinc veri falli has an.
 
