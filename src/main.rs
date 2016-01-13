@@ -21,7 +21,7 @@ fn main() {
 //prints a collation of markdown resolving links and inlining them
 fn print_col(seed_file: &String) {
 
-    let re = Regex::new(r"(?P<image>!)?\[(?P<name>.*)\]\((?P<href>.*)\)").unwrap();
+    let re = Regex::new(r"(?P<image>!)?\[(?P<name>[^\]]+)\]\((?P<href>[^\)]+)\)").unwrap();
     let mut files: Vec<String> = Vec::new();
     let mut processed_files: HashSet<String> = HashSet::new();
 
@@ -70,7 +70,7 @@ fn print_col(seed_file: &String) {
                         }
 
                         //Print out anchor links
-                        println!("<p id=\"{}\"></p>\n", file_name.replace("/", "_"));
+                        println!("<p id=\"{}\" class=\"next_file\"></p>\n", file_name.replace("/", "_"));
                         print!("{}", file_contents);
                     },
                     //Ignore file read errors, may be a binary format
