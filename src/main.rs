@@ -21,7 +21,7 @@ fn main() {
 //prints a collation of markdown resolving links and inlining them
 fn print_col(seed_file: &String) {
 
-    let re = Regex::new(r"(?P<image>!)?\[(?P<name>[^\]]+)\]\((?P<href>[^\)]+)\)").unwrap();
+    let re = Regex::new(r"(?P<image>!)?\[(?P<name>[^\]]*)\]\((?P<href>[^\)]+)\)").unwrap();
     let mut files: Vec<String> = Vec::new();
     let mut processed_files: HashSet<String> = HashSet::new();
 
@@ -34,10 +34,9 @@ fn print_col(seed_file: &String) {
         match resolve_file(file_name.as_ref()) {
             Ok(file) => {
                 match read_file(file) {
-                    Ok(contents) => {
-                        let mut file_contents = contents.clone();
+                    Ok(mut file_contents) => {
                         //We have to clone the file contents as we mutate it later
-                        for cap in re.captures_iter(file_contents.clone().as_ref()) {
+                        for cap in re.captures_iter(&file_contents.clone()) {
                             let href = cap.name("href").unwrap();
                             let name = cap.name("name").unwrap();
                             let total_match = cap.at(0).unwrap();
