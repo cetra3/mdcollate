@@ -1,5 +1,6 @@
 extern crate regex;
 
+use std::path::PathBuf;
 use regex::Regex;
 
 use std::env;
@@ -40,7 +41,7 @@ fn print_col(seed_file: &String) {
                             let href = cap.name("href").unwrap();
                             let name = cap.name("name").unwrap();
                             let total_match = cap.at(0).unwrap();
-                            let new_link = resolve_link(file_name.as_ref(), href).unwrap();
+                            let mut new_link = resolve_link(file_name.as_ref(), href).unwrap();
 
                             //Check to see if it's an image
                             let image = match cap.name("image") {
@@ -50,13 +51,18 @@ fn print_col(seed_file: &String) {
 
                             match image {
                                 true => {
-                                    file_contents = file_contents.replace(total_match, &(format!("![{}]({})", name, new_link)));
+                                    if let Ok(image_file) = resolve_path(&new_link) {
+                                        file_contents = file_contents.replace(total_match, &(format!("![{}]({})", name, image_file.display())));
+                                    }
                                 },
                                 false => {
 
                                     //Replace the links with the inline representation if it's resolvable
-                                    match resolve_file(new_link.as_ref()) {
-                                        Ok(_) => file_contents = file_contents.replace(total_match, &(format!("[{}](#{})", name, new_link.replace("/","_")))),
+                                    match resolve_path(&new_link) {
+                                        Ok(file) => {
+                                            new_link = String::from(file.to_string_lossy());
+                                            file_contents = file_contents.replace(total_match, &(format!("[{}](#{})", name, new_link.replace("/","_"))))
+                                        },
                                         Err(_) => ()
                                     }
 
@@ -115,15 +121,31 @@ fn resolve_link(original_file: &str, link: &str) -> Result<String> {
 }
 
 fn resolve_file(search_path: &str) -> Result<File> {
+    return File::open(resolve_path(search_path)?);
+}
+
+fn resolve_path(search_path: &str) -> Result<PathBuf> {
+
     let path = Path::new(search_path);
+
     match path.exists(){
-        true => File::open(&path),
+        true => {
+            let cur_dir = env::current_dir()?;
+            let canon_path = path.canonicalize()?;
+            let trimmed_path = canon_path.strip_prefix(&cur_dir).unwrap();
+            return Ok(trimmed_path.to_path_buf());
+        },
         false => {
+
+            if search_path.ends_with(".html") {
+                return resolve_path(&search_path[..search_path.len() - 5])
+            }
+
             match search_path.ends_with(".md") {
                 true => Err(Error::new(ErrorKind::NotFound,
                               "the file cannot be found")),
                 false =>  {
-                    return resolve_file(&(format!("{}.md", search_path)));
+                    return resolve_path(&(format!("{}.md", search_path)));
                 }
             }
         }
